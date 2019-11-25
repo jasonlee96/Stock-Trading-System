@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
@@ -22,7 +23,7 @@ import java.util.logging.Handler;
 
 public class StockTradingInterface {
 
-	private JFrame tradingPage;
+	public JFrame tradingPage;
 	private JMenuBar menu;
 	private JTable table;
 	private JTextField textField;
@@ -135,7 +136,17 @@ public class StockTradingInterface {
 		JButton buy = new JButton("Buy");
 		buy.setBounds(10, 11, 90, 23);
 		functionsContainer.add(buy);
-		buy.addActionListener(handler);
+		buy.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				buyForm buy = new buyForm();
+				tradingPage.setVisible(false);
+				buy.frame.setVisible(true);
+			}
+			
+		});
 		
 	    JButton sell = new JButton("Sell");
 	    sell.setBounds(100, 11, 90, 23);
@@ -218,3 +229,4 @@ public class StockTradingInterface {
 	    
 	}
 }
+
