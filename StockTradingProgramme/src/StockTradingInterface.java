@@ -23,7 +23,7 @@ import java.util.logging.Handler;
 
 public class StockTradingInterface {
 
-	public JFrame tradingPage;
+	private JFrame tradingPage;
 	private JMenuBar menu;
 	private JTable table;
 	private JTextField textField;
@@ -141,39 +141,99 @@ public class StockTradingInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				buyForm buy = new buyForm();
-				tradingPage.setVisible(false);
+				buyForm buy = new buyForm("Microsoft");
+				//tradingPage.setVisible(false);
 				buy.frame.setVisible(true);
 			}
-			
+
+
 		});
 		
 	    JButton sell = new JButton("Sell");
 	    sell.setBounds(100, 11, 90, 23);
 	    functionsContainer.add(sell);
+	    sell.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sellForm sell = new sellForm("Microsoft");
+				sell.frame.setVisible(true);
+			}
+	    	
+	    	
+	    });
 	    
 	    JButton report = new JButton("View Report");
 	    report.setBounds(190, 11, 100, 23);
 	    functionsContainer.add(report);
+	    report.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				reportInterface showReport = new reportInterface();
+				showReport.frame.setVisible(true);
+				
+			}
+	    	
+	    });
 	    
 	    JButton vPortfolio = new JButton("View Portfolio");
 	    vPortfolio.setBounds(290, 11, 100, 23);
 	    functionsContainer.add(vPortfolio);
+	    vPortfolio.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton aPortfolio = new JButton("Add company into Portfolio");
 	    aPortfolio.setBounds(390, 11, 170, 23);
 	    functionsContainer.add(aPortfolio);
+	    aPortfolio.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton orders = new JButton("My Orders");
 	    orders.setBounds(560, 11, 90, 23);
 	    functionsContainer.add(orders);
+	    orders.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton wallet = new JButton("My Wallet");
 	    wallet.setBounds(650, 11, 90, 23);
 	    functionsContainer.add(wallet);
+	    wallet.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
-	    JButton history = new JButton("View Trade History");
-	    functionsContainer.add(history);
+	    //JButton history = new JButton("View Trade History");
+	    //functionsContainer.add(history);
+	    
 	    
 	    //Time
 	    JPanel clockPanel = new JPanel();
@@ -195,6 +255,8 @@ public class StockTradingInterface {
 	    lblDate.setBounds(10, 11, 149, 14);
 	    datePanel.add(lblDate);
 	    
+	    
+	    //Table display
 	    String[] column_header = {"ID", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"};
 	    String[][] row = {};
 	    table = new JTable();
@@ -229,4 +291,3 @@ public class StockTradingInterface {
 	    
 	}
 }
-

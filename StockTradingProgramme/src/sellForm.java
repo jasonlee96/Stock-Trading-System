@@ -1,24 +1,20 @@
-import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import java.awt.BorderLayout;
+import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import javax.swing.JTextField;
 import javax.swing.JButton;
-import javax.swing.SwingConstants;
-import java.awt.Color;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import java.awt.event.KeyAdapter;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
-public class buyForm {
-
+public class sellForm {
 	public JFrame frame;
 	public JTextField textField;
 	public JTextField textField_1;
@@ -69,7 +65,7 @@ public class buyForm {
 		
 		lblDate.setText("Date: " + year + "/" + month + "/" + day);
 	}
-	
+
 	/**
 	 * Launch the application.
 	 */
@@ -77,7 +73,7 @@ public class buyForm {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					buyForm window = new buyForm("Microsoft");
+					sellForm window = new sellForm("Microsoft");
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -88,8 +84,9 @@ public class buyForm {
 
 	/**
 	 * Create the application.
+	 * @param name 
 	 */
-	public buyForm(String name) {
+	public sellForm(String name) {
 		this.name = name;
 		initialize();
 		clock();
@@ -100,7 +97,7 @@ public class buyForm {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame("Buy Order");
+		frame = new JFrame("Sell Order");
 		frame.setSize(588, 210);
 		frame.setBounds(100, 100, 590, 210);
 		frame.getContentPane().setLayout(null);
@@ -125,7 +122,7 @@ public class buyForm {
 		
 		//price
 		textField = new JTextField();
-		textField.addKeyListener(new priceKeyAdapter(this));
+		textField.addKeyListener(new priceKeyAdapter2(this));
 		textField.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		textField.setBounds(250, 15, 100, 30);
 		frame.getContentPane().add(textField);
@@ -133,7 +130,7 @@ public class buyForm {
 		
 		//quantity
 		textField_1 = new JTextField();
-		textField_1.addKeyListener(new priceKeyAdapter(this));
+		textField_1.addKeyListener(new priceKeyAdapter2(this));
 		textField_1.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		textField_1.setBounds(440, 15, 100, 30);
 		frame.getContentPane().add(textField_1);
@@ -144,9 +141,9 @@ public class buyForm {
 		lblNewLabel.setBounds(75, 10, 100, 40);
 		frame.getContentPane().add(lblNewLabel);
 		
-		JButton btnBuy = new JButton("Buy");
-		btnBuy.setBounds(130, 143, 89, 23);
-		frame.getContentPane().add(btnBuy);		
+		JButton btnSell = new JButton("Sell");
+		btnSell.setBounds(130, 143, 89, 23);
+		frame.getContentPane().add(btnSell);		
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(231, 143, 89, 23);
@@ -180,37 +177,36 @@ public class buyForm {
 	    panel.setBounds(10, 100, 556, 32);
 	    frame.getContentPane().add(panel);
 	    
-	    lblConfirmationPanel = new JLabel("Buy " + name + " at price " + this.price + ", and at " + this.quantity + " units?");
+	    lblConfirmationPanel = new JLabel("Sell " + name + " at price " + this.price + ", and at " + this.quantity + " units?");
 	    lblConfirmationPanel.setFont(new Font("Tahoma", Font.PLAIN, 15));
 	    panel.add(lblConfirmationPanel);
 	    
 	    JLabel lblUnit = new JLabel("1 unit = 100 lots");
 	    lblUnit.setBounds(388, 48, 108, 14);
 	    frame.getContentPane().add(lblUnit);
-	    	
 	}
 }
 
-class priceKeyAdapter extends KeyAdapter{
-	public buyForm buy;
-	public buyForm quantity;
-	public priceKeyAdapter(buyForm form) {
-		this.buy = form;
+class priceKeyAdapter2 extends KeyAdapter{
+	public sellForm sell;
+	public sellForm quantity;
+	public priceKeyAdapter2(sellForm form) {
+		this.sell = form;
 		this.quantity = form;
 	}
 	
 	@Override
 	public void keyReleased(KeyEvent e) {
 		try {
-			String text = buy.textField.getText().isEmpty() ? "0" : buy.textField.getText();
-			buy.price = Integer.parseInt(text);
+			String text = sell.textField.getText().isEmpty() ? "0" : sell.textField.getText();
+			sell.price = Integer.parseInt(text);
 			String text2 = quantity.textField_1.getText().isEmpty() ? "0" : quantity.textField_1.getText();
-			buy.quantity = Integer.parseInt(text2);
-			buy.lblConfirmationPanel.setText("Buy " + buy.name + " at price " + text + ", and at " + text2 + " units?");
+			sell.quantity = Integer.parseInt(text2);
+			sell.lblConfirmationPanel.setText("Sell " + sell.name + " at price " + text + ", and at " + text2 + " units?");
 			
 		} catch (NumberFormatException e1)
 		{
-			buy.lblConfirmationPanel.setText("Invalid price input or quantity!");
+			sell.lblConfirmationPanel.setText("Invalid price input or quantity!");
 		}
 		
 		
