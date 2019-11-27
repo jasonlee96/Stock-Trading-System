@@ -15,6 +15,9 @@ import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import java.awt.Color;
 import javax.swing.JPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 
 public class buyForm {
@@ -145,16 +148,22 @@ public class buyForm {
 		frame.getContentPane().add(lblNewLabel);
 		
 		JButton btnBuy = new JButton("Buy");
-		btnBuy.setBounds(130, 143, 89, 23);
-		frame.getContentPane().add(btnBuy);		
+		btnBuy.setBounds(175, 143, 89, 23);
+		frame.getContentPane().add(btnBuy);
+		btnBuy.addActionListener(new buyButtonHandler(name, price, quantity));
 		
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(231, 143, 89, 23);
+		btnCancel.setBounds(276, 143, 89, 23);
 		frame.getContentPane().add(btnCancel);
-		
-		JButton btnClear = new JButton("Clear");
-		btnClear.setBounds(330, 143, 89, 23);
-		frame.getContentPane().add(btnClear);
+		btnCancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				frame.dispose();
+			}
+			
+		});		
 		
 		JPanel clockPanel = new JPanel();
 		clockPanel.setBounds(10, 55, 155, 32);
@@ -202,8 +211,8 @@ class priceKeyAdapter extends KeyAdapter{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		try {
-			String text = buy.textField.getText().isEmpty() ? "0" : buy.textField.getText();
-			buy.price = Integer.parseInt(text);
+			String text = buy.textField.getText().isEmpty() ? "0.00" : buy.textField.getText();
+			buy.price = Float.parseFloat(text);
 			String text2 = quantity.textField_1.getText().isEmpty() ? "0" : quantity.textField_1.getText();
 			buy.quantity = Integer.parseInt(text2);
 			buy.lblConfirmationPanel.setText("Buy " + buy.name + " at price " + text + ", and at " + text2 + " units?");
@@ -215,5 +224,25 @@ class priceKeyAdapter extends KeyAdapter{
 		
 		
 		
+	}
+}
+
+class buyButtonHandler implements ActionListener{
+	public String name;
+	public float price;
+	public int quantity;
+	
+	public buyButtonHandler(String name, float price, int quantity)
+	{
+		this.name = name;
+		this.price = price;
+		this.quantity = quantity;
+		
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		stockOperation st = new stockOperation();
+		st.buyOperation(this.name, this.price, this.quantity);
 	}
 }

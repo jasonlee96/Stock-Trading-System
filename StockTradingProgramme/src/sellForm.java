@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -142,16 +144,21 @@ public class sellForm {
 		frame.getContentPane().add(lblNewLabel);
 		
 		JButton btnSell = new JButton("Sell");
-		btnSell.setBounds(130, 143, 89, 23);
+		btnSell.setBounds(175, 143, 89, 23);
 		frame.getContentPane().add(btnSell);		
 		
 		JButton btnCancel = new JButton("Cancel");
-		btnCancel.setBounds(231, 143, 89, 23);
+		btnCancel.setBounds(276, 143, 89, 23);
 		frame.getContentPane().add(btnCancel);
-		
-		JButton btnClear = new JButton("Clear");
-		btnClear.setBounds(330, 143, 89, 23);
-		frame.getContentPane().add(btnClear);
+		btnCancel.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				frame.dispose();
+			}
+			
+		});
 		
 		JPanel clockPanel = new JPanel();
 		clockPanel.setBounds(10, 55, 155, 32);

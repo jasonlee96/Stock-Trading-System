@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -132,7 +133,7 @@ public class StockTradingInterface {
 		functionsContainer.setBounds(23, 0, 750, 37);
 		tradingPage.getContentPane().add(functionsContainer);
 		functionsContainer.setLayout(null);
-		
+	
 		JButton buy = new JButton("Buy");
 		buy.setBounds(10, 11, 90, 23);
 		functionsContainer.add(buy);
@@ -272,10 +273,12 @@ public class StockTradingInterface {
 	    textField.setBounds(77, 0, 205, 28);
 	    searchPanel.add(textField);
 	    textField.setColumns(10);
+	    textField.addKeyListener(new searchBar(this));
 	    
 	    JLabel lblSearch = new JLabel("Search:");
 	    lblSearch.setBounds(21, 7, 46, 14);
 	    searchPanel.add(lblSearch);
+	    
 	    
 	    JPanel viewMarket = new JPanel();
 	    viewMarket.setBounds(309, 37, 424, 28);
@@ -285,9 +288,14 @@ public class StockTradingInterface {
 	    JScrollPane scrollPane = new JScrollPane();
 	    scrollPane.setBounds(10, 0, 404, 28);
 	    viewMarket.add(scrollPane);
-	    
-	    
-	    
-	    
+
 	}
+}
+
+class searchBar extends KeyAdapter{
+	public searchBar(StockTradingInterface stockTradingInterface) {
+		// TODO Auto-generated constructor stub
+		
+	}
+
 }
