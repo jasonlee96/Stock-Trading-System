@@ -5,6 +5,7 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -25,7 +26,7 @@ import java.util.logging.Handler;
 
 public class StockTradingInterface {
 
-	public JFrame tradingPage;
+	private JFrame tradingPage;
 	private JMenuBar menu;
 	private JTable table;
 	private JTextField textField;
@@ -134,7 +135,7 @@ public class StockTradingInterface {
 		functionsContainer.setBounds(23, 0, 750, 37);
 		tradingPage.getContentPane().add(functionsContainer);
 		functionsContainer.setLayout(null);
-		
+	
 		JButton buy = new JButton("Buy");
 		buy.setBounds(10, 11, 90, 23);
 		functionsContainer.add(buy);
@@ -143,39 +144,99 @@ public class StockTradingInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				buyForm buy = new buyForm();
-				tradingPage.setVisible(false);
+				buyForm buy = new buyForm("Microsoft");
+				//tradingPage.setVisible(false);
 				buy.frame.setVisible(true);
 			}
-			
+
+
 		});
 		
 	    JButton sell = new JButton("Sell");
 	    sell.setBounds(100, 11, 90, 23);
 	    functionsContainer.add(sell);
+	    sell.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				sellForm sell = new sellForm("Microsoft");
+				sell.frame.setVisible(true);
+			}
+	    	
+	    	
+	    });
 	    
 	    JButton report = new JButton("View Report");
 	    report.setBounds(190, 11, 100, 23);
 	    functionsContainer.add(report);
+	    report.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				reportInterface showReport = new reportInterface();
+				showReport.frame.setVisible(true);
+				
+			}
+	    	
+	    });
 	    
 	    JButton vPortfolio = new JButton("View Portfolio");
 	    vPortfolio.setBounds(290, 11, 100, 23);
 	    functionsContainer.add(vPortfolio);
+	    vPortfolio.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton aPortfolio = new JButton("Add company into Portfolio");
 	    aPortfolio.setBounds(390, 11, 170, 23);
 	    functionsContainer.add(aPortfolio);
+	    aPortfolio.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton orders = new JButton("My Orders");
 	    orders.setBounds(560, 11, 90, 23);
 	    functionsContainer.add(orders);
+	    orders.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    JButton wallet = new JButton("My Wallet");
 	    wallet.setBounds(650, 11, 90, 23);
 	    functionsContainer.add(wallet);
+	    wallet.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
-	    JButton history = new JButton("View Trade History");
-	    functionsContainer.add(history);
+	    //JButton history = new JButton("View Trade History");
+	    //functionsContainer.add(history);
+	    
 	    
 	    //Time
 	    JPanel clockPanel = new JPanel();
@@ -197,6 +258,8 @@ public class StockTradingInterface {
 	    lblDate.setBounds(10, 11, 149, 14);
 	    datePanel.add(lblDate);
 	    
+	    
+	    //Table display
 	    String[] column_header = {"ID", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"};
 	    String[][] row = {
 	    		{"MSFT", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
@@ -245,10 +308,12 @@ public class StockTradingInterface {
 	    textField.setBounds(77, 0, 205, 28);
 	    searchPanel.add(textField);
 	    textField.setColumns(10);
+	    textField.addKeyListener(new searchBar(this));
 	    
 	    JLabel lblSearch = new JLabel("Search:");
 	    lblSearch.setBounds(21, 7, 46, 14);
 	    searchPanel.add(lblSearch);
+	    
 	    
 	    JPanel viewMarket = new JPanel();
 	    viewMarket.setBounds(309, 37, 424, 28);
@@ -258,10 +323,14 @@ public class StockTradingInterface {
 	    JScrollPane scrollPane = new JScrollPane();
 	    scrollPane.setBounds(10, 0, 404, 28);
 	    viewMarket.add(scrollPane);
-	    
-	    
-	    
-	    
+
 	}
 }
 
+class searchBar extends KeyAdapter{
+	public searchBar(StockTradingInterface stockTradingInterface) {
+		// TODO Auto-generated constructor stub
+		
+	}
+
+}
