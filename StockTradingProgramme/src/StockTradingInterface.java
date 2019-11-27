@@ -1,5 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -14,6 +15,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
@@ -259,10 +261,43 @@ public class StockTradingInterface {
 	    
 	    //Table display
 	    String[] column_header = {"ID", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"};
-	    String[][] row = {};
-	    table = new JTable();
-	    table.setBounds(23, 70, 899, 555);
-	    tradingPage.getContentPane().add(table);
+	    String[][] row = {
+	    		{"MSFT", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"APPL", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"SVMK", "SVMK Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"SIVB", "SVB Financial Group", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"ZIOP", "ZIOPHARM Oncology Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"SVNDY", "Seven & I Holdings Co. Ltd. ADR", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"CEVA", "CEVA Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"GRMN", "Garmin Ltd.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"ZVO", "Zovio Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
+	    		{"SVRA", "Savara Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"}
+	    	};
+	    
+	    JScrollPane scrollPane_1 = new JScrollPane();
+	    scrollPane_1.setBounds(23, 70, 899, 555);
+	    tradingPage.getContentPane().add(scrollPane_1);
+	    table = new JTable(row, column_header);
+	    table.getColumnModel().getColumn(0).setPreferredWidth(55);
+	    table.getColumnModel().getColumn(1).setPreferredWidth(150);
+	    table.getColumnModel().getColumn(2).setPreferredWidth(135);
+	    table.getColumnModel().getColumn(3).setPreferredWidth(90);
+	    table.getColumnModel().getColumn(4).setPreferredWidth(135);
+	    table.getColumnModel().getColumn(5).setPreferredWidth(90);
+	    table.getColumnModel().getColumn(6).setPreferredWidth(135);
+	    table.getColumnModel().getColumn(7).setPreferredWidth(90);
+	    table.getColumnModel().getColumn(8).setPreferredWidth(90);
+	    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+	    centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+	    for(int i = 2; i < table.getColumnCount(); i++) {
+	    	table.getColumnModel().getColumn(i).setCellRenderer( centerRenderer );
+	    }
+	    table.setRowHeight(40);
+	    
+	    
+	    table.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 18));
+	    table.setFont(new Font("Tahoma", Font.PLAIN, 14));
+	    scrollPane_1.setViewportView(table);
 	    
 	    JPanel searchPanel = new JPanel();
 	    searchPanel.setBounds(23, 37, 282, 28);
