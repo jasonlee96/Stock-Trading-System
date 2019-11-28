@@ -26,6 +26,8 @@ import java.util.logging.Handler;
 
 public class StockTradingInterface {
 
+	public String username = "user 1";
+	public int uid = 1;
 	private JFrame tradingPage;
 	private JMenuBar menu;
 	private JTable table;
@@ -124,11 +126,14 @@ public class StockTradingInterface {
 		JMenu mnProgramSettings = new JMenu("Program settings");
 		mnFile.add(mnProgramSettings);
 		
-		JMenu mnNewMenu = new JMenu("Check for Updates");
-		mnFile.add(mnNewMenu);
+		JMenuItem mntmCheckForUpdates = new JMenuItem("Check for updates");
+		mnFile.add(mntmCheckForUpdates);
 		
 		JMenu mnSettings = new JMenu("Settings");
 		menuBar.add(mnSettings);
+		
+		JMenuItem mntmLogout = new JMenuItem("Logout");
+		mnSettings.add(mntmLogout);
 		tradingPage.getContentPane().setLayout(null);
 		
 		JPanel functionsContainer = new JPanel();
@@ -212,11 +217,16 @@ public class StockTradingInterface {
 	    orders.setBounds(560, 11, 90, 23);
 	    functionsContainer.add(orders);
 	    orders.addActionListener(new ActionListener() {
-
+	    	
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				buyForm buy = new buyForm("Microsoft");
+				//tradingPage.setVisible(false);
+				buy.frame.setVisible(true);
 				
+				myOrder order = new myOrder("user1", 1);
+				order.frame.setVisible(true);
 			}
 	    	
 	    });
@@ -313,16 +323,6 @@ public class StockTradingInterface {
 	    JLabel lblSearch = new JLabel("Search:");
 	    lblSearch.setBounds(21, 7, 46, 14);
 	    searchPanel.add(lblSearch);
-	    
-	    
-	    JPanel viewMarket = new JPanel();
-	    viewMarket.setBounds(309, 37, 424, 28);
-	    tradingPage.getContentPane().add(viewMarket);
-	    viewMarket.setLayout(null);
-	    
-	    JScrollPane scrollPane = new JScrollPane();
-	    scrollPane.setBounds(10, 0, 404, 28);
-	    viewMarket.add(scrollPane);
 
 	}
 }
