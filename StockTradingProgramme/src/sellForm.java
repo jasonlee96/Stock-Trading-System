@@ -1,22 +1,28 @@
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import java.awt.BorderLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.JButton;
 import javax.swing.SwingConstants;
+import java.awt.Color;
+import javax.swing.JPanel;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 
 public class sellForm {
+	
 	public JFrame frame;
 	public JTextField textField;
 	public JTextField textField_1;
@@ -145,7 +151,8 @@ public class sellForm {
 		
 		JButton btnSell = new JButton("Sell");
 		btnSell.setBounds(175, 143, 89, 23);
-		frame.getContentPane().add(btnSell);		
+		frame.getContentPane().add(btnSell);
+		btnSell.addActionListener(new sellButtonHandler(name, price, quantity));
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(276, 143, 89, 23);
@@ -205,7 +212,7 @@ class priceKeyAdapter2 extends KeyAdapter{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		try {
-			String text = sell.textField.getText().isEmpty() ? "0" : sell.textField.getText();
+			String text = sell.textField.getText().isEmpty() ? "0.00" : sell.textField.getText();
 			sell.price = Integer.parseInt(text);
 			String text2 = quantity.textField_1.getText().isEmpty() ? "0" : quantity.textField_1.getText();
 			sell.quantity = Integer.parseInt(text2);
@@ -219,4 +226,25 @@ class priceKeyAdapter2 extends KeyAdapter{
 		
 		
 	}
+}
+
+class sellButtonHandler implements ActionListener{
+
+	public String name;
+	public float price;
+	public int quantity;
+	
+	public sellButtonHandler(String name, float price, int quantity)
+	{
+		this.name = name;
+		this.price = price;
+		this.quantity = quantity;
+	}
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		stockOperation st = new stockOperation();
+		st.sellOperation(this.name, this.price, this.quantity);
+	}
+	
 }

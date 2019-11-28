@@ -109,7 +109,7 @@ public class StockDetail {
 	    chartPanel.setPreferredSize( new Dimension( 560 , 367 ) );
 	    chartPanel.setInitialDelay(0);
 	    
-	    ImageIcon icon = new ImageIcon("C:\\Users\\jason\\eclipse-workspace\\DS-Assignment\\DS-Assignment\\StockTradingProgramme\\images\\up.png");
+	    ImageIcon icon = new ImageIcon("images/up.png");
 	    Image scaledImg = icon.getImage().getScaledInstance(20, 20,Image.SCALE_DEFAULT);
 	    JLabel lblNewLabel_1 = new JLabel(new ImageIcon(scaledImg));
 	    lblNewLabel_1.setBounds(235, 77, 25, 25);
