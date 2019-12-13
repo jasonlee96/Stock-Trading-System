@@ -6,19 +6,36 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.ParseException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
+import org.jfree.data.xy.OHLCDataItem;
+
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.RowFilter;
 import javax.swing.JTextPane;
 import javax.swing.JScrollPane;
 import java.util.*;
@@ -26,9 +43,11 @@ import java.util.logging.Handler;
 
 public class StockTradingInterface {
 
-	public String username = "user 1";
-	public int uid = 1;
-	private JFrame tradingPage;
+	public String username;
+	public String uid;
+	public JFrame tradingPage;
+	public int selectedRow = -1;
+	private DefaultTableModel model;
 	private JMenuBar menu;
 	private JTable table;
 	private JTextField textField;
@@ -41,23 +60,27 @@ public class StockTradingInterface {
 	private JButton vPortfolio;
 	private JButton order;
 	private JButton wallet;
+	public LoginForm login;
+	public JDialog proc;
+	protected ServerConnection server;
+	public StockTradingInterface main;
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					StockTradingInterface tradingPage = new StockTradingInterface();
-					tradingPage.tradingPage.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//
+//		
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					StockTradingInterface tradingPage = new StockTradingInterface();
+//					tradingPage.tradingPage.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	public void clock()
 	{
@@ -89,6 +112,36 @@ public class StockTradingInterface {
 		
 	}
 	
+	public void getTableData() throws IOException, ParseException {
+		List<Object[]> dataItems = new ArrayList<Object[]>();
+		dataItems = server.getCompanyData();
+		if(dataItems == null) {
+			JOptionPane.showMessageDialog(null, "Error is occured when retrieving data");
+		}else {	
+			for(Object[] temp: dataItems) {
+				Object[] row = new Object[9];
+				row[0] = temp[0];
+				row[1] = temp[1];
+				row[2] = temp[2];
+				row[3] = String.format("%.2f", temp[3]);
+				row[4] = temp[4];
+				row[5] = String.format("%.2f", temp[5]);
+				row[6] = temp[6];
+				row[7] = String.format("%.2f", temp[7]);
+				row[8] = String.format("%.2f", temp[8]);
+				((DefaultTableModel)table.getModel()).addRow(row);
+			}
+			this.proc.dispose();
+		}
+	}
+	
+	public void filterTable(String keyword) {
+		TableRowSorter<DefaultTableModel> rowSorter = new TableRowSorter<DefaultTableModel>((DefaultTableModel) table.getModel());
+		table.setRowSorter(rowSorter);
+		
+		rowSorter.setRowFilter(RowFilter.regexFilter(keyword));
+	}
+	
 	public void date()
 	{
 		Calendar cal2 = new GregorianCalendar();
@@ -102,20 +155,54 @@ public class StockTradingInterface {
 	/**
 	 * Create the application.
 	 */
-	public StockTradingInterface() {
-		initialize();
+	public StockTradingInterface(LoginForm login, ServerConnection server, String uid, String username, JDialog proc) {
+		this.login = login;
+		this.server = server;
+		this.uid = uid;
+		this.username = username;
+		this.proc = proc;
+		try {
+			initialize();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		clock();
 		date();
+		this.main = this;
 	}
 
 	/**
 	 * Initialize the contents of the frame.
+	 * @throws ParseException 
+	 * @throws IOException 
 	 */
 	
-	private void initialize() {
+	private void initialize() throws IOException, ParseException {
 		tradingPage = new JFrame("TD Pro");
 		tradingPage.setSize(960, 720);
 		tradingPage.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		tradingPage.addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				try {
+					String res = server.Logout(uid);
+					if(res.startsWith("Success")) {
+						tradingPage.dispose();
+					}
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		    }
+		   
+			public void windowDeactivated(java.awt.event.WindowEvent windowEvent) {
+				
+		    }
+		});
 		
 		JMenuBar menuBar = new JMenuBar();
 		tradingPage.setJMenuBar(menuBar);
@@ -133,6 +220,23 @@ public class StockTradingInterface {
 		menuBar.add(mnSettings);
 		
 		JMenuItem mntmLogout = new JMenuItem("Logout");
+		mntmLogout.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					String res = server.Logout(uid);
+					if(res.startsWith("Success")) {
+						tradingPage.dispose();
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			
+		});
 		mnSettings.add(mntmLogout);
 		tradingPage.getContentPane().setLayout(null);
 		
@@ -148,10 +252,17 @@ public class StockTradingInterface {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				buyForm buy = new buyForm("Microsoft");
-				//tradingPage.setVisible(false);
-				buy.frame.setVisible(true);
+				if(selectedRow >= 0) {
+					
+					buyForm buy = new buyForm(server, main, table.getValueAt(selectedRow, 0).toString(), table.getValueAt(selectedRow, 1).toString());
+					
+					buy.frame.setVisible(true);
+					
+//					myOrder order = new myOrder("user1", 1);
+//					order.frame.setVisible(true);
+				}else {
+					JOptionPane.showMessageDialog(null,"Please Select A Company From Table");
+				}
 			}
 
 
@@ -164,81 +275,84 @@ public class StockTradingInterface {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				sellForm sell = new sellForm("Microsoft");
-				sell.frame.setVisible(true);
+				if(selectedRow >= 0) {
+					sellForm sell = new sellForm(server, main, table.getValueAt(selectedRow, 0).toString(), table.getValueAt(selectedRow, 1).toString());
+					sell.frame.setVisible(true);
+
+				}else {
+					JOptionPane.showMessageDialog(null,"Please Select A Company From Table");
+				}
 			}
 	    	
 	    	
 	    });
 	    
-	    JButton report = new JButton("View Report");
-	    report.setBounds(190, 11, 100, 23);
+	    JButton report = new JButton("Refresh Table");
+	    report.setBounds(190, 11, 120, 23);
 	    functionsContainer.add(report);
 	    report.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				reportInterface showReport = new reportInterface();
-				showReport.frame.setVisible(true);
+				StockTradingInterface sti = new StockTradingInterface(login, server, uid, username, proc);
+				sti.tradingPage.setVisible(true);
+				main.tradingPage.dispose();
 				
 			}
 	    	
 	    });
 	    
 	    JButton vPortfolio = new JButton("View Portfolio");
-	    vPortfolio.setBounds(290, 11, 100, 23);
+	    vPortfolio.setBounds(310, 11, 126, 23);
 	    functionsContainer.add(vPortfolio);
 	    vPortfolio.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				
-			}
-	    	
-	    });
-	    
-	    JButton aPortfolio = new JButton("Add company into Portfolio");
-	    aPortfolio.setBounds(390, 11, 170, 23);
-	    functionsContainer.add(aPortfolio);
-	    aPortfolio.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				
+				PortfolioView pv = new PortfolioView(server, main);
+				pv.frame.setVisible(true);
 			}
 	    	
 	    });
 	    
 	    JButton orders = new JButton("My Orders");
-	    orders.setBounds(560, 11, 90, 23);
+	    orders.setBounds(437, 11, 110, 23);
 	    functionsContainer.add(orders);
 	    orders.addActionListener(new ActionListener() {
 	    	
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				buyForm buy = new buyForm("Microsoft");
-				//tradingPage.setVisible(false);
-				buy.frame.setVisible(true);
-				
-				myOrder order = new myOrder("user1", 1);
-				order.frame.setVisible(true);
+					myOrder order;
+					try {
+						order = new myOrder(server);
+						order.frame.setVisible(true);
+					} catch (IOException | ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
 			}
 	    	
 	    });
 	    
 	    JButton wallet = new JButton("My Wallet");
-	    wallet.setBounds(650, 11, 90, 23);
+	    wallet.setBounds(548, 11, 110, 23);
 	    functionsContainer.add(wallet);
 	    wallet.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
+				myWallet mw;
+				try {
+					mw = new myWallet(server);
+					mw.frame.setVisible(true);
+				} catch (IOException | ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				
 			}
 	    	
@@ -271,32 +385,21 @@ public class StockTradingInterface {
 	    
 	    //Table display
 	    String[] column_header = {"ID", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"};
-	    String[][] row = {
-	    		{"MSFT", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"APPL", "Name", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"SVMK", "SVMK Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"SIVB", "SVB Financial Group", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"ZIOP", "ZIOPHARM Oncology Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"SVNDY", "Seven & I Holdings Co. Ltd. ADR", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"CEVA", "CEVA Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"GRMN", "Garmin Ltd.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"ZVO", "Zovio Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"},
-	    		{"SVRA", "Savara Inc.", "Volume", "Buy", "Buy Volume", "Sell", "Sell Volume", "High", "Low"}
-	    	};
-	    
+
 	    JScrollPane scrollPane_1 = new JScrollPane();
 	    scrollPane_1.setBounds(23, 70, 899, 555);
 	    tradingPage.getContentPane().add(scrollPane_1);
-	    table = new JTable(row, column_header);
+	    model = new DefaultTableModel(column_header, 0);
+	    table = new JTable(model){
+	    	public boolean isCellEditable(int row, int column) {
+	    		
+                return false;           
+	    	}
+	    };
 	    table.getColumnModel().getColumn(0).setPreferredWidth(55);
-	    table.getColumnModel().getColumn(1).setPreferredWidth(150);
-	    table.getColumnModel().getColumn(2).setPreferredWidth(135);
-	    table.getColumnModel().getColumn(3).setPreferredWidth(90);
-	    table.getColumnModel().getColumn(4).setPreferredWidth(135);
-	    table.getColumnModel().getColumn(5).setPreferredWidth(90);
-	    table.getColumnModel().getColumn(6).setPreferredWidth(135);
-	    table.getColumnModel().getColumn(7).setPreferredWidth(90);
-	    table.getColumnModel().getColumn(8).setPreferredWidth(90);
+	    table.getColumnModel().getColumn(1).setPreferredWidth(175);
+	    getTableData();
+	    
 	    DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
 	    centerRenderer.setHorizontalAlignment( JLabel.CENTER );
 	    for(int i = 2; i < table.getColumnCount(); i++) {
@@ -304,11 +407,45 @@ public class StockTradingInterface {
 	    }
 	    table.setRowHeight(40);
 	    
+	    table.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				selectedRow = table.getSelectedRow();
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+	    	
+	    });
 	    
 	    table.getTableHeader().setFont(new Font("Tahoma", Font.BOLD, 18));
 	    table.setFont(new Font("Tahoma", Font.PLAIN, 14));
 	    scrollPane_1.setViewportView(table);
 	    
+
 	    JPanel searchPanel = new JPanel();
 	    searchPanel.setBounds(23, 37, 282, 28);
 	    tradingPage.getContentPane().add(searchPanel);
@@ -318,11 +455,91 @@ public class StockTradingInterface {
 	    textField.setBounds(77, 0, 205, 28);
 	    searchPanel.add(textField);
 	    textField.setColumns(10);
-	    textField.addKeyListener(new searchBar(this));
+	    textField.addKeyListener(new KeyListener() {
+
+			@Override
+			public void keyTyped(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				// TODO Auto-generated method stub
+				filterTable(textField.getText().toString());
+			}
+	    	
+	    });
 	    
 	    JLabel lblSearch = new JLabel("Search:");
 	    lblSearch.setBounds(21, 7, 46, 14);
 	    searchPanel.add(lblSearch);
+	    
+	    JButton btnViewCompanyDetail = new JButton("View Company Detail");
+	    btnViewCompanyDetail.setBounds(315, 40, 174, 23);
+	    tradingPage.getContentPane().add(btnViewCompanyDetail);
+	    
+	    JButton aPortfolio_1 = new JButton("Add company into Portfolio");
+	    aPortfolio_1.setBounds(493, 40, 188, 23);
+	    tradingPage.getContentPane().add(aPortfolio_1);
+	    aPortfolio_1.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				if(selectedRow >= 0) {
+					try {
+						if(server.addPortfolio(table.getValueAt(selectedRow, 0).toString())){
+							PortfolioView pv = new PortfolioView(server, main);
+							pv.frame.setVisible(true);
+						}else {
+							JOptionPane.showMessageDialog(null,"This company already in your Portfolio");
+						}
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+
+				}else {
+					JOptionPane.showMessageDialog(null,"Please Select A Company From Table");
+				}
+			}
+	    	
+	    });
+	    btnViewCompanyDetail.addActionListener(new ActionListener() {
+	    	
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(selectedRow >= 0) {
+					// TODO Auto-generated method stub
+//					buyForm buy = new buyForm("Microsoft");
+//					//tradingPage.setVisible(false);
+//					buy.frame.setVisible(true);
+					
+					StockDetail stk_detail;
+					try {
+						stk_detail = new StockDetail(server, main, table.getValueAt(selectedRow, 0), table.getValueAt(selectedRow, 1));
+						stk_detail.frame.setVisible(true);
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+					
+				}else {
+					JOptionPane.showMessageDialog(null, "Please Select Company from Table");
+				}
+			}
+	    	
+	    });
 
 	}
 }

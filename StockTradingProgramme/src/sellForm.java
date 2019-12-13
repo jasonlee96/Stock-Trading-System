@@ -3,10 +3,14 @@ import java.awt.EventQueue;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.text.ParseException;
 import java.time.Clock;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -29,9 +33,13 @@ public class sellForm {
 	public JLabel lblConfirmationPanel;
 	private JLabel lblClock;
 	private JLabel lblDate;
-	public String name;
 	public float price;
 	public int quantity;
+	protected ServerConnection server;
+	public StockTradingInterface main;
+	public String title;
+	public String symbol;
+	public JButton btnSell;
 	private KeyListener listener; 
 	
 	public void clock()
@@ -77,25 +85,28 @@ public class sellForm {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					sellForm window = new sellForm("Microsoft");
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					sellForm window = new sellForm("Microsoft");
+//					window.frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 
 	/**
 	 * Create the application.
 	 * @param name 
 	 */
-	public sellForm(String name) {
-		this.name = name;
+	public sellForm(ServerConnection server, StockTradingInterface main, String symbol, String title) {
+		this.server = server;
+		this.symbol = symbol;
+		this.title = title;
+		this.main = main;
 		initialize();
 		clock();
 		date();
@@ -117,22 +128,22 @@ public class sellForm {
 		frame.getContentPane().add(lblName);
 		
 		JLabel lblPrice = new JLabel("Price");
-		lblPrice.setHorizontalAlignment(SwingConstants.CENTER);
+		lblPrice.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblPrice.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblPrice.setBounds(180, 10, 80, 40);
+		lblPrice.setBounds(190, 10, 80, 40);
 		frame.getContentPane().add(lblPrice);
 		
 		JLabel lblUnits = new JLabel("Unit");
-		lblUnits.setHorizontalAlignment(SwingConstants.CENTER);
+		lblUnits.setHorizontalAlignment(SwingConstants.RIGHT);
 		lblUnits.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblUnits.setBounds(360, 10, 80, 40);
+		lblUnits.setBounds(367, 10, 65, 40);
 		frame.getContentPane().add(lblUnits);
 		
 		//price
 		textField = new JTextField();
 		textField.addKeyListener(new priceKeyAdapter2(this));
 		textField.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		textField.setBounds(250, 15, 100, 30);
+		textField.setBounds(278, 15, 100, 30);
 		frame.getContentPane().add(textField);
 		textField.setColumns(10);
 		
@@ -144,15 +155,42 @@ public class sellForm {
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
 		
-		JLabel lblNewLabel = new JLabel(this.name);
+		JLabel lblNewLabel = new JLabel(this.title);
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		lblNewLabel.setBounds(75, 10, 100, 40);
+		lblNewLabel.setBounds(75, 10, 155, 40);
 		frame.getContentPane().add(lblNewLabel);
 		
-		JButton btnSell = new JButton("Sell");
+		btnSell = new JButton("Sell");
 		btnSell.setBounds(175, 143, 89, 23);
+		btnSell.setEnabled(false);
 		frame.getContentPane().add(btnSell);
-		btnSell.addActionListener(new sellButtonHandler(name, price, quantity));
+		btnSell.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				try {
+					if(server.SellStk(symbol,price,quantity)) {
+						JOptionPane.showMessageDialog(null, "Transaction Complete");
+						StockTradingInterface reload = new StockTradingInterface(main.login, main.server, main.uid, main.username, main.proc);
+						reload.tradingPage.setVisible(true);
+						main.tradingPage.dispose();
+						myOrder ord = new myOrder(server);
+						ord.frame.setVisible(true);
+						frame.dispose();
+					}else {
+						JOptionPane.showMessageDialog(null, "Transaction Incomplete");
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (ParseException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+			
+		});
 		
 		JButton btnCancel = new JButton("Cancel");
 		btnCancel.setBounds(276, 143, 89, 23);
@@ -191,12 +229,12 @@ public class sellForm {
 	    panel.setBounds(10, 100, 556, 32);
 	    frame.getContentPane().add(panel);
 	    
-	    lblConfirmationPanel = new JLabel("Sell " + name + " at price " + this.price + ", and at " + this.quantity + " units?");
+	    lblConfirmationPanel = new JLabel("Sell " + this.title + " at price " + this.price + ", and at " + this.quantity + " units?");
 	    lblConfirmationPanel.setFont(new Font("Tahoma", Font.PLAIN, 15));
 	    panel.add(lblConfirmationPanel);
 	    
 	    JLabel lblUnit = new JLabel("1 unit = 100 lots");
-	    lblUnit.setBounds(388, 48, 108, 14);
+	    lblUnit.setBounds(432, 52, 108, 14);
 	    frame.getContentPane().add(lblUnit);
 	}
 }
@@ -216,11 +254,16 @@ class priceKeyAdapter2 extends KeyAdapter{
 			sell.price = Integer.parseInt(text);
 			String text2 = quantity.textField_1.getText().isEmpty() ? "0" : quantity.textField_1.getText();
 			sell.quantity = Integer.parseInt(text2);
-			sell.lblConfirmationPanel.setText("Sell " + sell.name + " at price " + text + ", and at " + text2 + " units?");
-			
+			sell.lblConfirmationPanel.setText("Sell " + sell.title + " at price " + text + ", and at " + text2 + " units?");
+			if(!sell.textField.getText().isEmpty() && !sell.textField_1.getText().isEmpty()) {
+				sell.btnSell.setEnabled(true);
+			}else {
+				sell.btnSell.setEnabled(false);
+			}
 		} catch (NumberFormatException e1)
 		{
 			sell.lblConfirmationPanel.setText("Invalid price input or quantity!");
+			sell.btnSell.setEnabled(false);
 		}
 		
 		
@@ -228,23 +271,3 @@ class priceKeyAdapter2 extends KeyAdapter{
 	}
 }
 
-class sellButtonHandler implements ActionListener{
-
-	public String name;
-	public float price;
-	public int quantity;
-	
-	public sellButtonHandler(String name, float price, int quantity)
-	{
-		this.name = name;
-		this.price = price;
-		this.quantity = quantity;
-	}
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
-		stockOperation st = new stockOperation();
-		st.sellOperation(this.name, this.price, this.quantity);
-	}
-	
-}

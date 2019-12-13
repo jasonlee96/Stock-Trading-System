@@ -26,12 +26,16 @@ import org.jfree.data.xy.OHLCDataset;
 import org.jfree.ui.ApplicationFrame;
 
 public class CandleChart{
+	private List<OHLCDataItem> data;
+
+	private String chartTitle;
 	//https://www.alphavantage.co/query?function=TIME_SERIES_MONTHLY&symbol=MSFT&apikey=demo&datatype=csv
-	public CandleChart(String title, String chartTitle) throws IOException{
-     
+	public CandleChart(String title, String chartTitle, List<OHLCDataItem> data) throws IOException{
+     this.chartTitle = chartTitle;
+     this.data = data;
 	}
 	public JFreeChart drawChart() {
-		JFreeChart chart = ChartFactory.createCandlestickChart("MSFT", "Time", "Price", getData(), false);
+		JFreeChart chart = ChartFactory.createCandlestickChart(chartTitle, "Time", "Price", getData(data), false);
 	     chart.setBackgroundPaint(Color.white);
 
 	     // 4. Set a few custom plot features
@@ -50,43 +54,12 @@ public class CandleChart{
 		return chart;
 	}
 	
-	public OHLCDataset getData(){
-		List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
-	     try {
-	         String strUrl = "https://www.alphavantage.co/query?function=TIME_SERIES_DAILY_ADJUSTED&symbol=MSFT&apikey=demo&datatype=csv";
-	         URL url = new URL(strUrl);
-	         BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-	         DateFormat df = new SimpleDateFormat("y-M-d");
-
-	         String inputLine;
-	         in.readLine();
-	         while ((inputLine = in.readLine()) != null) {
-	             StringTokenizer st = new StringTokenizer(inputLine, ",");
-
-	             Date date = df.parse(st.nextToken());
-	             double open = Double.parseDouble(st.nextToken());
-	             double high = Double.parseDouble(st.nextToken());
-	             double low = Double.parseDouble(st.nextToken());
-	             double close = Double.parseDouble(st.nextToken());
-	             double adjClose = Double.parseDouble(st.nextToken());
-	             double volume = Double.parseDouble(st.nextToken());
-	             
-	             open = open * adjClose / close;
-	             high = high * adjClose / close;
-	             low = low * adjClose / close;
-
-	             OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
-	             dataItems.add(item);
-	         }
-	         in.close();
-	         
-	     }catch(Exception e) {
-	    	 e.printStackTrace();
-	     }
+	public OHLCDataset getData(List<OHLCDataItem> data){
+		
 	     
-	     Collections.reverse(dataItems);
-	     OHLCDataItem[] data = dataItems.toArray(new OHLCDataItem[dataItems.size()]);
-	     OHLCDataset dataset = new DefaultOHLCDataset("MSFT", data);
+	     Collections.reverse(data);
+	     OHLCDataItem[] datalist = data.toArray(new OHLCDataItem[data.size()]);
+	     OHLCDataset dataset = new DefaultOHLCDataset(chartTitle, datalist);
 	     
 	     return dataset;
 	}
