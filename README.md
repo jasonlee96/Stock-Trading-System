@@ -1,2 +1,3 @@
-# DS-Assignment
-Errrr....... Burra's DS assignment, Git be my backkup pls senpaizzzzzz.....
+# Stock Trading System by Java Swing
+
+A stock trading system designed by Client-Server Architecture
